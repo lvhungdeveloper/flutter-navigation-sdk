@@ -230,6 +230,16 @@ public class GoogleMapsNavigationView: NSObject, FlutterPlatformView, ViewSettle
 
   func setMyLocationEnabled(_ enabled: Bool) throws {
     _mapView.isMyLocationEnabled = enabled
+    
+    // IMPORTANT: Set travel mode to walking to enable compass-based heading
+    // for the blue location arrow. This allows the arrow to rotate according
+    // to device orientation even when standing still, which is essential for
+    // pedestrian navigation and general map usage.
+    // This matches the behavior of native Google Maps iOS SDK sample code.
+    if enabled {
+      _mapView.travelMode = .walking
+    }
+    
     try updateMyLocationButton()
   }
 
@@ -239,6 +249,17 @@ public class GoogleMapsNavigationView: NSObject, FlutterPlatformView, ViewSettle
 
   public func setMapType(mapType: GMSMapViewType) throws {
     _mapView.mapType = mapType
+  }
+
+  public func setTravelMode(travelMode: GMSNavigationTravelMode) {
+    // Setting travel mode on the map view enables compass-based heading
+    // for the blue location arrow, especially useful for walking mode
+    // where users need to see direction even when standing still
+    _mapView.travelMode = travelMode
+  }
+
+  public func getTravelMode() -> GMSNavigationTravelMode {
+    _mapView.travelMode
   }
 
   func setMapStyle(styleJson: String) throws {
