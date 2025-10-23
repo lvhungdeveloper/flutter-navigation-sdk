@@ -20,16 +20,34 @@ class LocationManager {
 
   private let _locationManager = CLLocationManager()
 
+  init() {
+    // Configure location manager for better accuracy and heading updates
+    _locationManager.desiredAccuracy = kCLLocationAccuracyBestForNavigation
+    _locationManager.distanceFilter = kCLDistanceFilterNone
+    
+    // Configure heading filter for smoother rotation
+    // Only report heading changes of 5 degrees or more
+    _locationManager.headingFilter = 5
+  }
+
   func requestAlwaysAuthorization() {
     _locationManager.requestAlwaysAuthorization()
   }
 
   func startUpdatingLocation() {
     _locationManager.startUpdatingLocation()
+    // Enable heading updates to show device orientation on the blue location arrow
+    if CLLocationManager.headingAvailable() {
+      _locationManager.startUpdatingHeading()
+    }
   }
 
   func stopUpdatingLocation() {
     _locationManager.stopUpdatingLocation()
+    // Stop heading updates when location updates are stopped
+    if CLLocationManager.headingAvailable() {
+      _locationManager.stopUpdatingHeading()
+    }
   }
 
   func allowBackgroundLocationUpdates(allow: Bool) {
