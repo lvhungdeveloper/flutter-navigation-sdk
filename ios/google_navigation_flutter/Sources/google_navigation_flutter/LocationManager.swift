@@ -15,12 +15,17 @@
 import CoreLocation
 import Foundation
 
-class LocationManager {
+class LocationManager: NSObject, CLLocationManagerDelegate {
   static let shared = LocationManager()
 
   private let _locationManager = CLLocationManager()
 
-  init() {
+  override init() {
+    super.init()
+    
+    // Set delegate FIRST before configuring
+    _locationManager.delegate = self
+    
     // Configure location manager for better accuracy and heading updates
     _locationManager.desiredAccuracy = kCLLocationAccuracyBestForNavigation
     _locationManager.distanceFilter = kCLDistanceFilterNone
@@ -52,5 +57,41 @@ class LocationManager {
 
   func allowBackgroundLocationUpdates(allow: Bool) {
     _locationManager.allowsBackgroundLocationUpdates = allow
+  }
+  
+  // MARK: - CLLocationManagerDelegate
+  
+  // These delegate methods are required for CLLocationManager to actually
+  // work and provide location/heading updates to the system and GMSMapView
+  
+  func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+    // Location updates are automatically used by GMSMapView when isMyLocationEnabled = true
+    // No need to manually handle here, but this delegate method must be implemented
+  }
+  
+  func locationManager(_ manager: CLLocationManager, didUpdateHeading newHeading: CLHeading) {
+    // Heading updates are automatically used by GMSMapView to rotate the blue location arrow
+    // No need to manually handle here, but this delegate method must be implemented
+  }
+  
+  func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
+    // Handle location errors
+    print("LocationManager error: \(error.localizedDescription)")
+  }
+  
+  func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {
+    // Handle authorization changes
+    switch manager.authorizationStatus {
+    case .authorizedWhenInUse, .authorizedAlways:
+      // Authorization granted, location updates can proceed
+      break
+    case .denied, .restricted:
+      print("Location authorization denied or restricted")
+    case .notDetermined:
+      // Will be handled by requestAlwaysAuthorization()
+      break
+    @unknown default:
+      break
+    }
   }
 }
